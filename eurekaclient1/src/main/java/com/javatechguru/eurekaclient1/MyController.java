@@ -1,6 +1,7 @@
 package com.javatechguru.eurekaclient1;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.apache.http.protocol.HTTP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,20 @@ public class MyController {
 	public ResponseEntity<String> fallbackMethod1(Exception ex) {
 		return new ResponseEntity<>("fallback method call " +ex, HttpStatus.SERVICE_UNAVAILABLE);
 	}
+	int i=0;
+	@GetMapping("retryTesting")
+	@Retry(name = "RETRY-ID", fallbackMethod = "retryFallbackMehthod")
+	public String retryTest(){
+		i++;
+		ResponseEntity<String> response = restTemplate.getForEntity("http://school", String.class);
+		return "retry method call :"+ i + response.getBody();
+		}
+
+	public String retryFallbackMehthod(Exception e){
+		return i+" retry fallback method call "+e;
+	}
+
+
 
 
 }
