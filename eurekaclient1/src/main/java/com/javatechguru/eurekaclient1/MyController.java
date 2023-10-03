@@ -1,6 +1,8 @@
 package com.javatechguru.eurekaclient1;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.apache.http.protocol.HTTP;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,8 @@ public class MyController {
 
 	@Autowired
 	RestTemplate restTemplate;
+	@Autowired
+	FeignClientExample feignClientExample;
 
 	@GetMapping("/client1")
 	String getStr() {
@@ -52,6 +56,26 @@ public class MyController {
 	}
 
 
+	@GetMapping("rateLimitTesting")
+	@RateLimiter(name = "rateLimiterId", fallbackMethod = "rateLimiterFallbackMehthod")
+	public ResponseEntity<String> rateLimitTesting(){
+		System.out.println("rateLimitTesting call before");
+		ResponseEntity<String> response = restTemplate.getForEntity("http://school", String.class);
+		i++;
+		System.out.println("rateLimitTesting==call after" );
+
+		return response;
+	}
+
+	public ResponseEntity<String> rateLimiterFallbackMehthod(Exception e){
+		return new ResponseEntity<>(i+" fallback method",HttpStatus.BAD_REQUEST);
+	}
+
+
+	@GetMapping("/feignDemo")
+	public String getFromSchool(){
+		return feignClientExample.getSchool();
+	}
 
 
 }

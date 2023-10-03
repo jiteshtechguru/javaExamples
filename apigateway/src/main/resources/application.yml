@@ -1,0 +1,15 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: API-GATEWAY
+
+
+  cloud:
+    gateway:
+      routes:
+        - id: EUREKA-CLIENT1
+          uri: http://localhost:8081
+          predicates:
+            - Path=/**
